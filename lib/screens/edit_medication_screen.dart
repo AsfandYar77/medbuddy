@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:medbuddy/models/medication_model.dart';
 import 'package:medbuddy/providers/medication_provider.dart';
@@ -16,19 +17,28 @@ class EditMedicationScreen extends StatefulWidget {
 class _EditMedicationScreenState extends State<EditMedicationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _typeController = TextEditingController();
   final _dosageController = TextEditingController();
-  final _frequencyController = TextEditingController();
+  final _intervalController = TextEditingController();
+  final TextEditingController _notesController = TextEditingController();
+
   DateTime? _startDate;
   DateTime? _endDate;
+  TimeOfDay? _atTime;
+  DateTime? _dateTime;
 
   @override
   void initState() {
     super.initState();
     _nameController.text = widget.medication.name;
+    _typeController.text = widget.medication.type!;
     _dosageController.text = widget.medication.dosage;
-    _frequencyController.text = widget.medication.frequency;
+    _intervalController.text = widget.medication.atInterval as String;
+    _notesController.text = widget.medication.notes!;
     _startDate = widget.medication.startDate;
     _endDate = widget.medication.endDate;
+    _atTime = widget.medication.atTime as TimeOfDay?;
+    _dateTime = widget.medication.dateTime;
   }
 
   @override
@@ -44,99 +54,144 @@ class _EditMedicationScreenState extends State<EditMedicationScreen> {
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [TextFormField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: 'Medication Name',),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a medication name';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              controller: _dosageController,
+              decoration: const InputDecoration(
+                labelText: 'type',
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter the Type';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              controller: _dosageController,
+              decoration: const InputDecoration(
+                labelText: 'Dosage',
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a dosage';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16.0),
+            TextFormField(
+              controller: _intervalController,
+              decoration: const InputDecoration(
+                labelText: 'Interval',
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a Interval';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16.0),
+            Row(
               children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Medication Name',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter medication name';
-                    }
-                    return null;
+                Expanded(
+                  child: TextButton(
+                    onPressed: () {
+                      DatePicker.showDatePicker(
+                        context,
+                        showTitleActions: true,
+                        minTime: DateTime(1900, 01, 01),
+                        maxTime: DateTime(2050, 12, 31),
+                        onConfirm: (date) {
+                          setState(() {
+                            _startDate = date;
+                          }
+                          );
+                        },
+                        currentTime: _startDate ?? DateTime.now(),
+                        locale: LocaleType.en,
+                      );
                     },
-                ),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  controller: _dosageController,
-                  decoration: const InputDecoration(
-                    labelText: 'Dosage',
-                    border: OutlineInputBorder(),
+                    child: Text(_startDate != null
+                        ? 'Start Date: ${_startDate!.toLocal()}'
+                        : 'Select Start Date'),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter dosage';
-                    }
-                    return null;
-                    },
                 ),
-                const SizedBox(height: 16.0),
-                TextFormField(
-                  controller: _frequencyController,
-                  decoration: const InputDecoration(
-                    labelText: 'Frequency',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter frequency';
-                    }
-                    return null;
-                    },
-                ),
-                const SizedBox(height: 16.0),
-                TextButton(
-                  onPressed: () async {
-                    final initialDate = _startDate ?? DateTime.now();
-                    final pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: initialDate,
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime(2100),
-                    );
-                    if (pickedDate != null) {
-                      setState(() {
-                        _startDate = pickedDate;
+                const SizedBox(width: 16.0),
+                Expanded(
+                  child: TextButton(onPressed: () {
+                    DatePicker.showDatePicker(context, showTitleActions: true,
+                      minTime: DateTime.now(),
+                      maxTime: DateTime(2050, 12, 31),
+                      onConfirm: (date) {setState(() {
+                        _endDate = date;
                       });
-                    }
-                    },
-                  child: Text(_startDate != null
-                      ? 'Start Date: ${DateFormat.yMd().format(_startDate!)}'
-                      : 'Select Start Date'),
+                      },
+                      currentTime: _endDate ?? DateTime.now(),
+                      locale: LocaleType.en,);
+                  },
+                    child: Text(_endDate != null
+                        ? 'End Date: ${_endDate!.toLocal()}'
+                        : 'Select End Date'),
+                  ),
                 ),
-                const SizedBox(height: 16.0),
-                TextButton(
-                  onPressed: () async {
-                    final initialDate = _endDate ?? DateTime.now();
-                    final pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: initialDate,
-                      firstDate: DateTime(1900),
-                      lastDate: DateTime(2100),
+              ],
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                _atTime = await showTimePicker(
+                  context: context,
+                  initialTime: TimeOfDay.now(),
+                );
+                if (_atTime != null) {
+                  setState(() {
+                    _dateTime = DateTime(
+                      _dateTime!.year,
+                      _dateTime!.month,
+                      _dateTime!.day,
+                      _atTime!.hour,
+                      _atTime!.minute,
                     );
-                    if (pickedDate != null) {                      setState(() {
-                      _endDate = pickedDate;
-                    });
-                    }
-                    },
-                  child: Text(_endDate != null
-                      ? 'End Date: ${DateFormat.yMd().format(_endDate!)}'
-                      : 'Select End Date'),
-                ),
+                  });
+                }
+              },
+              child: Text(_dateTime != null ? _dateTime.toString() : 'Select Time'),
+            ),
                 const SizedBox(height: 32.0),
                 ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
                       final medication = Medication(
-                        id: widget.medication.id,
+                        notificationIDs: [],
                         name: _nameController.text,
+                        type: _typeController.text,
                         dosage: _dosageController.text,
-                        frequency: _frequencyController.text,
                         startDate: _startDate!,
-                        endDate: _endDate,
-                        notes: '',
+                        endDate: _endDate!,
+                        atTime: '',
+                        dateTime: _dateTime,
+                        atInterval: null,
+                        notes: _notesController.text,
+                        //id: widget.medication.id,
+                       // name: _nameController.text,
+                        //dosage: _dosageController.text,
+                       // frequency: _frequencyController.text,
+                       // startDate: _startDate!,
+                       // endDate: _endDate,
+                       // notes: '',
                       );
                       final medicationProvider = Provider.of<MedicationProvider>(context, listen: false);
                       medicationProvider.updateMedication(medication);

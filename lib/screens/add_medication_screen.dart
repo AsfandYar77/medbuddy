@@ -14,16 +14,27 @@ class AddMedicationScreen extends StatefulWidget {
 class _AddMedicationScreenState extends State<AddMedicationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
+  final _typeController = TextEditingController();
   final _dosageController = TextEditingController();
-  final _frequencyController = TextEditingController();
+  final _intervalController = TextEditingController();
+  final TextEditingController _notesController = TextEditingController();
+
   DateTime? _startDate;
   DateTime? _endDate;
+  TimeOfDay? _atTime;
+  DateTime? _dateTime;
+
+
+
+
 
   @override
   void dispose() {
     _nameController.dispose();
+    _typeController.dispose();
     _dosageController.dispose();
-    _frequencyController.dispose();
+    _intervalController.dispose();
+    _notesController.dispose();
     super.dispose();
   }
 
@@ -56,6 +67,19 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                 TextFormField(
                   controller: _dosageController,
                   decoration: const InputDecoration(
+                    labelText: 'type',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the Type';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16.0),
+                TextFormField(
+                  controller: _dosageController,
+                  decoration: const InputDecoration(
                     labelText: 'Dosage',
                   ),
                   validator: (value) {
@@ -67,13 +91,13 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                 ),
                 const SizedBox(height: 16.0),
                 TextFormField(
-                  controller: _frequencyController,
+                  controller: _intervalController,
                   decoration: const InputDecoration(
-                    labelText: 'Frequency',
+                    labelText: 'Interval',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a frequency';
+                      return 'Please enter a Interval';
                     }
                     return null;
                     },
@@ -87,7 +111,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                           DatePicker.showDatePicker(
                             context,
                             showTitleActions: true,
-                            minTime: DateTime.now(),
+                            minTime: DateTime(1900, 01, 01),
                             maxTime: DateTime(2050, 12, 31),
                             onConfirm: (date) {
                               setState(() {
@@ -124,6 +148,26 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                     ),
                   ],
                 ),
+                ElevatedButton(
+                  onPressed: () async {
+                    _atTime = await showTimePicker(
+                      context: context,
+                      initialTime: TimeOfDay.now(),
+                    );
+                    if (_atTime != null) {
+                      setState(() {
+                        _dateTime = DateTime(
+                          _dateTime!.year,
+                          _dateTime!.month,
+                          _dateTime!.day,
+                          _atTime!.hour,
+                          _atTime!.minute,
+                        );
+                      });
+                    }
+                  },
+                  child: Text(_dateTime != null ? _dateTime.toString() : 'Select Time'),
+                ),
                 const SizedBox(height: 16.0),
                 Center(
                   child: ElevatedButton(
@@ -132,13 +176,23 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                           _startDate != null &&
                           _endDate != null) {
                         final medication = Medication(
-                          name: _nameController.text,
-                          dosage: _dosageController.text,
-                          frequency: _frequencyController.text,
-                          startDate: _startDate!,
-                          endDate: _endDate!,
-                          id: '',
-                          notes: '',
+                            notificationIDs: [],
+                            name: _nameController.text,
+                            type: _typeController.text,
+                            dosage: _dosageController.text,
+                            startDate: _startDate!,
+                            endDate: _endDate!,
+                            atTime: '',
+                          dateTime: _dateTime,
+                            atInterval: null,
+                            notes: _notesController.text,
+                          //id: UniqueKey().toString(),
+                          //name: _nameController.text,
+                         // dosage: _dosageController.text,
+                         // frequency: _frequencyController.text,
+                         // startDate: _startDate!,
+                         // endDate: _endDate!,
+                         // notes: _notesController.text,
                         );
                         medicationProvider.addMedication(medication);
                         Navigator.pop(context);

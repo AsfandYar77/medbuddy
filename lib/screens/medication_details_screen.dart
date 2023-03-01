@@ -51,7 +51,7 @@ class MedicationDetailsScreen extends StatelessWidget {
 
                 const SizedBox(height: 8.0),
                 Text(
-                  'Frequency: ${medication.frequency} times a day',
+                  'After: ${medication.atInterval} time',
                   style: const TextStyle(fontSize: 18.0),
                 ),
               ],
@@ -71,7 +71,7 @@ class MedicationDetailsScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Text(
-              medication.notes,
+              medication.notes??'',
               style: const TextStyle(fontSize: 18.0),
             ),
           ),

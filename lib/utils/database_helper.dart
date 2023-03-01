@@ -1,46 +1,72 @@
-import 'dart:io';
-import 'package:medbuddy/models/medication_model.dart';
-import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+
+import '../models/medication_model.dart';
 
 class DatabaseHelper {
-  static final DatabaseHelper _instance = DatabaseHelper._internal();
-
-  factory DatabaseHelper() => _instance;
+  static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
   static Database? _database;
 
+  DatabaseHelper._privateConstructor();
+
+
   Future<Database> get database async {
-    if (_database != null) {
-      return _database!;
-    }
+    if (_database != null) return _database!;
     _database = await _initDatabase();
     return _database!;
   }
 
-  DatabaseHelper._internal();
-
   Future<Database> _initDatabase() async {
-    final databasesPath = await getDatabasesPath();
-    final path = join(databasesPath, 'medbuddy.db');
-    return await openDatabase(path, version: 1, onCreate: _onCreate);
+    final String path = await getDatabasesPath();
+    return openDatabase(
+      join(path, 'medications.db'),
+      version: 1,
+      onCreate: _createDatabase,
+    );
   }
 
-  Future<void> _onCreate(Database db, int version) async {
-    await db.execute(
-        'CREATE TABLE medications(id TEXT PRIMARY KEY, name TEXT, dose TEXT, schedule TEXT, start_date INTEGER, end_date INTEGER)');
+  Future<void> _createDatabase(Database db, int version) async {
+    await db.execute('''
+      CREATE TABLE medications(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        dosage TEXT,
+        frequency TEXT,
+        start_date INTEGER,
+        end_date INTEGER,
+        notes TEXT
+      )
+    ''');
   }
 
-  static Future<void> deleteDatabase(String path) async {
-    final databasesPath = await getDatabasesPath();
-    final path = join(databasesPath, 'medbuddy.db');
-    await deleteDatabase(path);
+  Future<int> addMedication(Medication medication) async {
+    final db = await database;
+    return db.insert('medications', medication.toMap());
   }
 
-  static DatabaseHelper getInstance() {
-    return _instance;
+  Future<int> updateMedication(Medication medication) async {
+    final db = await database;
+    return db.update(
+      'medications',
+      medication.toMap(),
+      where: 'id = ?',
+      whereArgs: [medication.notificationIDs],
+    );
+  }
+
+  Future<int> deleteMedication(int id) async {
+    final db = await database;
+    return db.delete(
+      'medications',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  Future<List<Medication>> getMedications() async {
+    final db = await database;
+    final List<Map<String, dynamic>> medicationData = await db.query('medications');
+    return medicationData.map((data) => Medication.fromMap(data)).toList();
   }
 }

@@ -11,7 +11,7 @@ class MedicationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(medication.name),
-      subtitle: Text('Dosage: ${medication.dosage}, Frequency: ${medication.frequency}'),
+      subtitle: Text('Dosage: ${medication.dosage}, Frequency: ${medication.atInterval}'),
       trailing: IconButton(
         icon: const Icon(Icons.edit),
         onPressed: () {
