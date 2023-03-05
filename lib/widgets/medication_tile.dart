@@ -9,12 +9,17 @@ class MedicationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(medication.name),
-      subtitle: Text('Dosage: ${medication.dosage}, Frequency: ${medication.atInterval}'),
-      trailing: IconButton(
-        icon: const Icon(Icons.edit),
-        onPressed: () {
+    return Card(
+      elevation: 2.0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        side: BorderSide(
+          color: Colors.grey.withOpacity(0.5),
+          width: 1,
+        ),
+      ),
+      child: InkWell(
+        onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -22,6 +27,21 @@ class MedicationTile extends StatelessWidget {
             ),
           );
         },
+        child: ListTile(
+          title: Text(
+            medication.name,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          subtitle: Text(
+            'Dosage: ${medication.dosage}, Frequency: ${medication.getFrequencyString(medication.atInterval)}',
+            style: TextStyle(
+              color: Colors.grey[700],
+            ),
+          ),
+          trailing: Icon(Icons.edit),
+        ),
       ),
     );
   }

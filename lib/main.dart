@@ -5,6 +5,8 @@ import 'package:medbuddy/screens/add_medication_screen.dart';
 import 'package:medbuddy/screens/medication_details_screen.dart';
 import 'package:medbuddy/screens/medication_list_screen.dart';
 import 'package:provider/provider.dart';
+import 'dart:math';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyApp());

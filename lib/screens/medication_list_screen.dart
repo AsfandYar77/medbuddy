@@ -5,6 +5,7 @@ import 'package:medbuddy/widgets/app_drawer.dart';
 import 'package:medbuddy/widgets/medication_tile.dart';
 import 'package:provider/provider.dart';
 
+
 class MedicationScreen extends StatelessWidget {
   const MedicationScreen({Key? key}) : super(key: key);
 
@@ -13,10 +14,9 @@ class MedicationScreen extends StatelessWidget {
     final medicationProvider = Provider.of<MedicationProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: AppBar(centerTitle: true,
         title: const Text('MedBuddy'),
       ),
-      drawer: const AppDrawer(),
       body: SafeArea(
         child: Column(
           children: [
@@ -28,20 +28,25 @@ class MedicationScreen extends StatelessWidget {
                   return MedicationTile(medication: medication);
                 },
               ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const AddMedicationScreen(),
-                  ),
-                );
-              },
-              child: const Text('Add Medication'),
+
             ),
           ],
+
         ),
+
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      floatingActionButton: FloatingActionButton(
+        isExtended: true,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AddMedicationScreen(),
+            ),
+          );
+        },
+        child: Icon(Icons.add),
       ),
     );
   }

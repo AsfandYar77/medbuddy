@@ -1,13 +1,13 @@
-enum type { Bottle, Tablet, Syringe, None }
+import 'package:flutter/material.dart';
 
 class Medication {
-  final List<dynamic>? notificationIDs; // Notification ID
+  final List<dynamic>? notificationIDs;
   final String name;
-  final String?  type;
+  final String? type;
   final String dosage;
   final DateTime startDate;
   final DateTime? endDate;
-  final String? atTime;
+  final TimeOfDay? atTime;
   final DateTime? dateTime;
   final int? atInterval;
   String? notes;
@@ -22,7 +22,7 @@ class Medication {
     required this.atTime,
     required this.dateTime,
     required this.atInterval,
-    this.notes
+    this.notes,
   });
 
   //get methods
@@ -51,7 +51,7 @@ class Medication {
     return endDate;
   }
 
-  String? getAtTime() {
+  TimeOfDay? getAtTime() {
     return atTime;
   }
 
@@ -94,4 +94,35 @@ class Medication {
     'atInterval': atInterval,
     'notes': notes,
   };
+  String getFrequencyString(int? interval) {
+    if (interval == null) {
+      return 'Unknown';
+    } else if (interval == 24) {
+      return 'Once a day';
+    } else if (interval == 12) {
+      return 'Twice a day';
+    } else if (interval == 8) {
+      return '3 times a day';
+    } else if (interval == 6) {
+      return '4 times a day';
+    } else if (interval % 24 == 0) {
+      final days = interval ~/ 24;
+      if (days == 1) {
+        return 'Once a day';
+      } else if (days == 2) {
+        return 'Twice a day';
+      } else {
+        return 'Every $days days';
+      }
+    } else if (interval % 168 == 0) {
+      final weeks = interval ~/ 168;
+      if (weeks == 1) {
+        return 'Once a week';
+      } else {
+        return 'Every $weeks weeks';
+      }
+    } else {
+      return 'Unknown';
+    }
+  }
 }
